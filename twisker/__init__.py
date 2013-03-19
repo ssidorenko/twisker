@@ -1,7 +1,10 @@
 from flask import Flask
+
 import settings
 
-app = Flask('twisker')
+from make_json_app import make_json_app
+
+app = make_json_app('twisker')
 app.config.from_object('twisker.settings')
 
 import views

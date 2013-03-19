@@ -36,3 +36,8 @@ nosetests.xml
 
 # Don't share the secret key
 /twisker/localsettings.py
+
+# Vim stuff
+*.swp
+*.swo
+*~
