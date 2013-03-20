@@ -1,43 +1,39 @@
+import datetime
+import time
+import json
+
+from google.appengine.ext import db
+
 def query_to_json(query_obj):
     """Converts a gql query set, or a single model, respectively to JSON"""
+    return GAEJSONEncoder().encode(query_obj)
 
-def query_to_data(query_obj):
-    """Converts a gql query set, or a single model, respectively to a list
-    of dict or a dict"""
+class GAEJSONEncoder(json.JSONEncoder):
+    """This json encoder parses models as dicts, with related models as id"""
+    def default(self, o):
+        # If it's a model, convert its properties to a dictionnary, which will
+        # itself be parsed by the JSONEncoder later
+        if isinstance(o, db.Model):
+            output = {'id':o.key().id_or_name()}
+            for key, prop in o.properties().iteritems():
+                value = getattr(o,key) 
+                if isinstance(value, db.Model):
+                    value = value.key().id_or_name()
+                elif isinstance(value, db.Key):
+                    value = value.id_or_name()
 
-    # Iterates only if we're processing a query or list of items
-    if hasattr(query_obj, "__iter__"):
-        result = []
-        for entry in query_obj:
-            result.append(
-                to_dict(entry)
-            )
-        return result
-    else:
-        return to_dict(query_obj)
-
-def to_dict(model):
-    """Converts a GAE model instance to a dictionnary"""
-    output = {}
-
-    for key, prop in model.properties().iteritems():
-        value = getattr(model, key)
-
-        if value is None or isinstance(value, SIMPLE_TYPES):
-            output[key] = value
-        elif isinstance(value, datetime.date):
+                output[key] = value
+            return output
+        elif isinstance(o, db.Query) or isinstance(o, db.GqlQuery):
+            return list(o)
+        elif isinstance(o, db.GeoPt):
+            return {'lat': o.lat, 'lon': o.lon}
+        elif isinstance(o, db.Key):
+            return o.id_or_name()
+        elif isinstance(o, datetime.date):
             # Convert date/datetime to ms-since-epoch ("new Date()").
-            ms = time.mktime(value.utctimetuple())
-            ms += getattr(value, 'microseconds', 0) / 1000
-            output[key] = int(ms)
-        elif isinstance(value, db.GeoPt):
-            output[key] = {'lat': value.lat, 'lon': value.lon}
-        elif isinstance(value, db.Model):
-            output[key] = to_dict(value)
-        elif isinstance(value, users.User):
-            output[key] = value.user_id()
+            ms = time.mktime(o.utctimetuple())
+            ms += getattr(o, 'microseconds', 0) / 1000
+            return int(ms)
         else:
-            raise ValueError('cannot encode ' + repr(prop))
-    output["id"] = str(model.key().id_or_name())
-
-    return output
+            raise ValueError('cannot encode ' + repr(o))
