@@ -1,7 +1,7 @@
 import logging
 import json
 
-from flask import request
+from flask import request, abort
 from jsonproc import json_query_view
 from google.appengine.ext import ndb
 
@@ -12,6 +12,7 @@ from models import Twisk
 @app.route('/twisks/', methods=['GET', 'POST'])
 @json_query_view
 def twisks():
+    """Returns all twisks in JSON format. All of them."""
     if request.method == 'GET':
         twisks = Twisk.gql("ORDER BY when DESC")
         return twisks
