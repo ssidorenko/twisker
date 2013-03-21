@@ -5,7 +5,7 @@ from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import ndb, deferred
 
 
-INTERVAL = 30
+INTERVAL = 5
 
 
 class Tag(ndb.Model):
@@ -13,6 +13,9 @@ class Tag(ndb.Model):
     which holds the amount of twisks tagged with this tag."""
 
     count = ndb.IntegerProperty(default=0)
+
+    def _pre_delete_hook(self):
+        memcache.delete(self.key.id(), self._get_kind())
 
     @classmethod
     def get_value(cls, name):

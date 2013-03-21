@@ -12,19 +12,8 @@ class TwiskUser(ndb.Model):
     def follow(self, other_username):
         other_user = TwiskUser.get_by_id(other_username)
 
-        if other_user.key() != self.key() and other_user.key() not in self.following:
-            other_user.followers.append(self.key())
-            self.following.append(other_user.key())
+        if other_user.key != self.key and other_user.key not in self.following:
+            other_user.followers.append(self.key)
+            self.following.append(other_user.key)
             other_user.put()
             self.put()
-
-    def _pre_put_hook(self):
-        self.parse_tags()
-
-    def parse_tags(self):
-        for word in self.content.split(" "):
-            if word[0] == '#':
-                self.add_tag(word)
-
-    def add_tag(self):
-        pass
