@@ -5,31 +5,32 @@ from functools import wraps
 
 from flask import Response
 
-from google.appengine.ext import db
+from google.appengine.ext import ndb
+
 
 class GAEJSONEncoder(json.JSONEncoder):
     """This json encoder parses models as dicts, with related models as id"""
     def default(self, o):
         # If it's a model, convert its properties to a dictionnary, which will
         # itself be parsed by the JSONEncoder later
-        if isinstance(o, db.Model):
+        if isinstance(o, ndb.Model):
             output = {}
-            for key, prop in o.properties().iteritems():
-                value = getattr(o,key) 
-                if isinstance(value, db.Model):
-                    value = str(value.key().id_or_name())
-                elif isinstance(value, db.Key):
-                    value = value.id_or_name()
+            for key, prop in o._properties.iteritems():
+                value = getattr(o, key)
+                if isinstance(value, ndb.Model):
+                    value = str(value.key.id())
+                elif isinstance(value, ndb.Key):
+                    value = value.id()
 
                 output[key] = value
-                
-            output['id'] = str(o.key().id_or_name())
+
+            output['id'] = str(o.key.id())
             return output
-        elif isinstance(o, db.Query) or isinstance(o, db.GqlQuery):
+        elif isinstance(o, ndb.Query):
             return list(o)
-        elif isinstance(o, db.GeoPt):
+        elif isinstance(o, ndb.GeoPt):
             return {'lat': o.lat, 'lon': o.lon}
-        elif isinstance(o, db.Key):
+        elif isinstance(o, ndb.Key):
             return o.id_or_name()
         elif isinstance(o, datetime.date):
             # Convert date/datetime to ms-since-epoch ("new Date()").
@@ -38,6 +39,7 @@ class GAEJSONEncoder(json.JSONEncoder):
             return int(ms)
         else:
             raise ValueError('cannot encode ' + repr(o))
+
 
 def json_query_view(f):
     """Small decorators that runs the output of the passed function through the
@@ -51,6 +53,7 @@ def json_query_view(f):
         )
 
     return decorated
+
 
 def json_response(data):
     """Return a Flask response with JSON mimetype"""
