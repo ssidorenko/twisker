@@ -12,6 +12,12 @@ indexes:
 
 - kind: Twisk
   properties:
+  - name: author
+  - name: when
+    direction: desc
+
+- kind: Twisk
+  properties:
   - name: tags
   - name: when
     direction: desc
