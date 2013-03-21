@@ -2,10 +2,10 @@ from google.appengine.ext import ndb
 
 
 class TwiskUser(ndb.Model):
+    """Represents an user. Their username is the key"""
+
     followers = ndb.KeyProperty(kind='TwiskUser', repeated=True)
     following = ndb.KeyProperty(kind='TwiskUser', repeated=True)
-
-    tags = ndb.StringProperty(repeated=True)
 
     # TODO find another way to realise this without hitting the 5 write/s limit
     @ndb.transactional(xg=True)
@@ -28,9 +28,3 @@ class TwiskUser(ndb.Model):
 
     def add_tag(self):
         pass
-
-
-class Twisk(ndb.Model):
-    content = ndb.StringProperty(required=True)
-    when = ndb.DateTimeProperty(auto_now_add=True)
-    author = ndb.KeyProperty(kind='TwiskUser')
