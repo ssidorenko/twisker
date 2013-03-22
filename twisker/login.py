@@ -1,5 +1,5 @@
 from flask import request, flash, redirect, url_for, render_template
-from . import login_manager, app
+from twisker.main import login_manager, app
 from models import TwiskUser
 from flask_login import login_required, login_user, logout_user
 

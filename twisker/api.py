@@ -51,5 +51,5 @@ def get_twisk(id):
 @json_query_view
 def get_tag(tag):
     """Returns all twisks tagged with a given tag"""
-    twisks = Twisk.gql("WHERE tags = :1 ORDER BY when DESC", tag)
+    twisks = Twisk.get_tag_feed(tag)
     return twisks

@@ -1,11 +1,9 @@
 from google.appengine.ext import ndb
 
-from twisker import app
+from twisker.main import app
 from flask import request, render_template, flash
 from flask_login import login_required, current_user
 from models import Twisk, TwiskUser, Tag
-
-import api
 
 
 @app.route('/', methods=['GET', 'POST'])
