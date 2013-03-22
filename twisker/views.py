@@ -1,18 +1,33 @@
 from google.appengine.ext import ndb
 
 from twisker import app
-from flask import render_template
+from flask import request, render_template, flash
 from flask_login import login_required, current_user
-from models import Twisk, TwiskUser
+from models import Twisk, TwiskUser, Tag
 
 import api
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
     """Shows all the twisks from the logged-in user feed"""
-    twisks = current_user.get_feed()
+    twisks = []
+    if request.method == "POST":
+        twisk = Twisk(
+            author=current_user.key,
+            content=request.form['content']
+        )
+        twisk.put()
+
+        # Append the twisk to the feed because the DB probably won't have
+        # finished to apply the changes by the time this function has finished
+        # executing
+        twisks.append(twisk)
+
+        flash("Twisk successfully posted !")
+
+    twisks.extend(current_user.get_feed())
     return render_template("index.html", twisks=twisks)
 
 

@@ -1,7 +1,24 @@
 {% extends "base.html" %}
 {% block body %}
 <div class="row">
-  <div class="span6">
+	<div class="span5">
+
+		<form class="well" method="POST" action=".">
+			<fieldset class="row-fluid">
+				<input type="text" name="content" class="span12" placeholder="Compose new Twisk...">
+				<button type="submit" class="btn btn-primary pull-right">Post</button>
+			</fieldset>
+		</form>
+
+	<ul class="nav nav-list">
+	  <li class="nav-header">Trending tags</li>
+	  {% for tag in trending_tags %}
+	  <li class="active"><a href="{{ url_for("show_tag", tag) }}">tag</a></li>
+	  {% endfor %}
+	</ul>
+	</div>
+
+  <div class="span7">
     {% include "twisks_table.html" %}
   </div>
 </div>

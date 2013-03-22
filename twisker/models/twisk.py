@@ -1,6 +1,5 @@
 import datetime
 import random
-import logging
 
 from google.appengine.ext import ndb, deferred
 from google.appengine.api import memcache, taskqueue
@@ -37,7 +36,6 @@ class Twisk(ndb.Model):
 
     def add_tag(self, tag):
         """Add a tag to self.tags and increment the corresponding tag counter"""
-        logging.debug("adding tag {}".format(tag))
         if tag.isalnum() and tag not in self.tags:
             # Keep track of how many times tag has been referenced
             Tag.incr(tag)

@@ -54,7 +54,7 @@ class TwiskUser(ndb.Model, UserMixin):
         """Update the memcache for this user feed"""
         if self.following:
             feed = Twisk.gql("WHERE author in :1 ORDER BY when DESC LIMIT 50",
-                             self.following)
+                             self.following + [self.key, ])
         else:
             feed = []
 
@@ -66,7 +66,7 @@ class TwiskUser(ndb.Model, UserMixin):
         """Update the feeds for all of the user's followers (should be called
             in a background task)"""
 
-        for k in self.followers:
+        for k in self.followers + [self.key, ]:
             # For each follower, schedule a task with a name unique for this
             # user for UPDATE_INTERVAL seconds
 
@@ -77,7 +77,9 @@ class TwiskUser(ndb.Model, UserMixin):
             task_name = '-'.join([str(el) for el in [USER_FEED_NAMESPACE,
                                                      k.id(), interval_num]])
             try:
-                deferred.defer(TwiskUser.deferred_update_feed, k, _name=task_name, _countdown=5+ random.randint(0, 5))
+                deferred.defer(TwiskUser.deferred_update_feed, k,
+                               _name=task_name,
+                               _countdown=5 + random.randint(0, 5))
 
             # If this tasks already exists it means that this method has already
             # been scheduled less than UPDATE_INTERVAL seconds ago
