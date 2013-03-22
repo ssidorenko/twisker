@@ -1,0 +1,15 @@
+{# reusable component to show a list of twisks in a table #}
+{% if not twisks %}
+  <p>{{ no_twisks_message|default("Nothing in your feed !") }}</p>
+{% else %}
+  <table class="table table-hover">
+    <tbody>
+      {% for twisk in twisks %}
+      <tr>
+        <td>{{ twisk.author.id() }}</td>
+        <td>{{ twisk.content }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}

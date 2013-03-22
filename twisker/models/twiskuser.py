@@ -1,4 +1,5 @@
 import datetime
+import random
 
 from google.appengine.ext import ndb, deferred
 from google.appengine.api import memcache, taskqueue
@@ -11,6 +12,9 @@ from twisker.models import Twisk
 
 # Max interval at which feeds can be updated
 UPDATE_INTERVAL = 10
+
+# Memcache and taskqueue namespace to store the user feeds in
+USER_FEED_NAMESPACE = "userfeed"
 
 
 class TwiskUser(ndb.Model, UserMixin):
@@ -39,9 +43,9 @@ class TwiskUser(ndb.Model, UserMixin):
     def get_feed(self):
         """Returns and cache the users feed (last twisks from the users they follow)"""
         # First try to return the cached one
-        feed = memcache.get(self.key.id(), namespace="feed")
+        feed = memcache.get(self.key.id(), namespace=USER_FEED_NAMESPACE)
 
-        if feed:
+        if feed is not None:
             return feed
 
         return self.update_feed()
@@ -54,7 +58,7 @@ class TwiskUser(ndb.Model, UserMixin):
         else:
             feed = []
 
-        memcache.set(self.key.id(), list(feed), namespace="feed")
+        memcache.set(self.key.id(), list(feed), namespace=USER_FEED_NAMESPACE)
 
         return feed
 
@@ -70,10 +74,10 @@ class TwiskUser(ndb.Model, UserMixin):
             interval_num = get_interval_number(datetime.datetime.now(), UPDATE_INTERVAL)
 
             # Generate task name for this user and this interval
-            task_name = '-'.join([str(el) for el in [TwiskUser._get_kind(),
+            task_name = '-'.join([str(el) for el in [USER_FEED_NAMESPACE,
                                                      k.id(), interval_num]])
             try:
-                deferred.defer(TwiskUser.deferred_update_feed, k, _name=task_name)
+                deferred.defer(TwiskUser.deferred_update_feed, k, _name=task_name, _countdown=5+ random.randint(0, 5))
 
             # If this tasks already exists it means that this method has already
             # been scheduled less than UPDATE_INTERVAL seconds ago
