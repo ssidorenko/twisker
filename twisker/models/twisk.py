@@ -12,6 +12,10 @@ class Twisk(ndb.Model):
     def _pre_put_hook(self):
         self.parse_tags()
 
+    def _post_put_hook(self, future):
+        """Updates the feeds of the followers once a twisk has been posted"""
+        self.author.get().update_feeds()
+
     def parse_tags(self):
         """Reads self.content and each found hashtag"""
         for word in self.content.split(" "):

@@ -1,10 +1,11 @@
-import time
 import datetime
 
 from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import ndb, deferred
 
+from twisker.task_utils import get_interval_number
 
+# At which interval should counters be flushed to datastore
 INTERVAL = 5
 
 
@@ -88,13 +89,3 @@ class Tag(ndb.Model):
             pass
 
 
-def get_interval_number(ts, duration):
-    """Returns the number of the current interval.
-
-    Args:
-        ts: The timestamp to convert
-        duration: The length of the interval
-    Returns:
-        int: interval number.
-    """
-    return int(time.mktime(ts.timetuple()) / duration)
