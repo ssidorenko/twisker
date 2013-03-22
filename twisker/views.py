@@ -28,7 +28,7 @@ def index():
         flash("Twisk successfully posted !")
 
     twisks.extend(current_user.get_feed())
-    return render_template("index.html", twisks=twisks)
+    return render_template("index.html", twisks=twisks, trending_tags=Tag.get_trending())
 
 
 @app.route('/user/<string:username>')
@@ -37,7 +37,7 @@ def show_user(username):
     """Shows all the twisks posted by a given user"""
     twisks = Twisk.gql("WHERE author = :1 ORDER BY when DESC LIMIT 50",
                        ndb.Key(TwiskUser, username))
-    return render_template("index.html", twisks=twisks)
+    return render_template("list_twisks.html", twisks=twisks)
 
 
 @app.route('/tag/<string:tag>')
@@ -45,5 +45,5 @@ def show_user(username):
 def show_tag(tag):
     """Shows all the twisks tagged with the given tag"""
     twisks = Twisk.get_tag_feed(tag)
-    return render_template("index.html", twisks=twisks,
+    return render_template("list_twisks.html", twisks=twisks,
                            no_twisks_message="No twisks with this tag !")

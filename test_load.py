@@ -20,13 +20,18 @@ tags = [
     '#yolo',
     '#testtag',
     '#yolo',
-    '#yolo'
+    '#yolo',
     '#somethingelse',
 ]
 
+tag_source = "will display the definition of the word. However, most of\
+the time, it does not come with example sentences of the English word, which\
+will show you how to use the English word in sentences how to connect it with\
+other words and with grammar structures. "
+
+tags.extend(["#" + str(el) for el in tag_source.split(" ")])
 while True:
-    content = sentence + " " + " ".join(random.sample(tags, 2)) + \
-        " " + str(datetime.datetime.now())
+    content = sentence + " " + " ".join(random.sample(tags, 5))
 
     req = requests.post(
         "http://localhost:8080/twisks/",
@@ -35,4 +40,4 @@ while True:
         headers=headers)
 
     print req.json()
-    time.sleep(0.005)
+    time.sleep(0.05)

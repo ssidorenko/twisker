@@ -1,4 +1,5 @@
 import datetime
+import random
 
 from google.appengine.api import memcache, taskqueue
 from google.appengine.ext import ndb, deferred
@@ -6,7 +7,7 @@ from google.appengine.ext import ndb, deferred
 from twisker.task_utils import get_interval_number
 
 # At which interval should counters be flushed to datastore
-INTERVAL = 5
+INTERVAL = 10
 
 
 class Tag(ndb.Model):
@@ -17,6 +18,10 @@ class Tag(ndb.Model):
 
     def _pre_delete_hook(self):
         memcache.delete(self.key.id(), self._get_kind())
+
+    def hashtag(self):
+        """Returns the tag prefixed with an hash"""
+        return "#" + self.key.id()
 
     @classmethod
     def get_value(cls, name):
@@ -84,8 +89,13 @@ class Tag(ndb.Model):
         interval_num = get_interval_number(datetime.datetime.now(), INTERVAL)
         task_name = '-'.join([str(el) for el in [cls._get_kind(), name, INTERVAL, interval_num]])
         try:
-            deferred.defer(cls.flush_counter, name, _name=task_name)
+            deferred.defer(cls.flush_counter, name, _name=task_name,
+                           _countdown=random.randint(0, INTERVAL))
         except (taskqueue.TaskAlreadyExistsError, taskqueue.TombstonedTaskError):
             pass
 
+    @classmethod
+    def get_trending(cls):
+        """Returns top 4 trending tags"""
+        return Tag.gql("ORDER BY count DESC LIMIT 5")
 

@@ -11,7 +11,7 @@ from twisker.task_utils import get_interval_number
 from twisker.models import Twisk
 
 # Max interval at which feeds can be updated
-UPDATE_INTERVAL = 10
+UPDATE_INTERVAL = 20
 
 # Memcache and taskqueue namespace to store the user feeds in
 USER_FEED_NAMESPACE = "userfeed"
@@ -79,7 +79,7 @@ class TwiskUser(ndb.Model, UserMixin):
             try:
                 deferred.defer(TwiskUser.deferred_update_feed, k,
                                _name=task_name,
-                               _countdown=5 + random.randint(0, 5))
+                               _countdown=random.randint(0, UPDATE_INTERVAL))
 
             # If this tasks already exists it means that this method has already
             # been scheduled less than UPDATE_INTERVAL seconds ago

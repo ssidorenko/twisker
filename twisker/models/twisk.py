@@ -8,7 +8,7 @@ from twisker.task_utils import get_interval_number
 from tag import Tag
 
 # Max interval at which tag feeds can be updated
-UPDATE_INTERVAL = 10
+UPDATE_INTERVAL = 30
 
 # Memcache and taskqueu namespace to store the tag feeds in
 TAG_FEED_NAMESPACE = "tagfeed"
@@ -57,7 +57,7 @@ class Twisk(ndb.Model):
                                   tag, interval_num]])
             try:
                 deferred.defer(Twisk.update_tag_feed, tag, _name=task_name,
-                               _countdown=5 + random.randint(0, 5))
+                               _countdown=random.randint(0, UPDATE_INTERVAL))
 
             # If this tasks already exists it means that this method has already
             # been scheduled less than UPDATE_INTERVAL seconds ago

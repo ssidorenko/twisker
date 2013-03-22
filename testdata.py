@@ -15,7 +15,8 @@ tags = [
     '#yolo',
     '#testtag',
     '#yolo',
-    '#yolo',
+    '#yolo'
+    '#somethingelse',
 ]
 
 # use each username, reversed, as a hashtag

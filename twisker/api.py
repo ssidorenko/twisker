@@ -2,15 +2,16 @@
 import logging
 import json
 
-from flask import request, abort
+from flask import request, abort, Blueprint
 from jsonproc import json_query_view
 from google.appengine.ext import ndb
 
-from twisker import app
 from models import Twisk
 
+api = Blueprint('api', __name__)
 
-@app.route('/twisks/', methods=['GET', 'POST'])
+
+@api.route('/twisks/', methods=['GET', 'POST'])
 @json_query_view
 def twisks():
     """Returns all twisks in JSON format. All of them."""
@@ -31,7 +32,7 @@ def twisks():
         return twisk
 
 
-@app.route('/twisks/<string:id>', methods=['GET', 'DELETE'])
+@api.route('/twisks/<string:id>', methods=['GET', 'DELETE'])
 @json_query_view
 def get_twisk(id):
     """Returns a single twisk, also accept DELETE"""
@@ -46,7 +47,7 @@ def get_twisk(id):
         return twisk.content
 
 
-@app.route('/twisks/tagged/<string:tag>', methods=['GET'])
+@api.route('/twisks/tagged/<string:tag>', methods=['GET'])
 @json_query_view
 def get_tag(tag):
     """Returns all twisks tagged with a given tag"""
